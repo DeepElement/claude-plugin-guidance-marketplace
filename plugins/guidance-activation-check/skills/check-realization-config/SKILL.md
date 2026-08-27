@@ -42,15 +42,16 @@ calling skill believes it is (its own registered name, from its
      file to fix.
 
 4. **Validate the config block.** Read the matched realization's
-   published input schema (from its `skills/realize-<provider>/SKILL.md`,
-   which must be a superset of the concept's tier 2 base schema). Check
-   the entry's `config:` block against it:
-   - Every required field is present.
-   - No field has an obviously wrong type (e.g. a string where the schema
-     says a list).
+   `skills/realize-<provider>/schema.json` (a JSON Schema document, per
+   the [`schema.json` convention](../../../../docs/architecture.md#the-schemajson-convention-tier-2-and-tier-3),
+   which must be a superset of the concept's `skills/realization-contract/schema.json`).
+   Validate the entry's `config:` block against it:
+   - Every field listed in the schema's `required` array is present.
+   - Every field's value matches the schema's declared `type`.
    If anything is missing or invalid, halt and report each specific
-   field, what's expected, and that the fix is in
-   `marketplace-plugin-settings.yml` under `<concept>.config`.
+   field (using the schema's `description` if present), what's expected,
+   and that the fix is in `marketplace-plugin-settings.yml` under
+   `<concept>.config`.
 
 5. **Only if all checks pass**, report success in one line and allow the
    calling realization to proceed. Do not perform the realization's actual
@@ -66,8 +67,8 @@ Run the same checks as above, but for every concept entry present in
 - Flag any installed concept plugin (has `skills/concept/`) with no entry
   in the settings file at all — it will fall back to its default
   realization (per the architecture doc, §4) but may still need `config`
-  filled in; check the default realization's schema and report what's
-  needed if anything is required.
+  filled in; check the default realization's `schema.json` and report
+  what's needed if anything is required.
 
 Report results grouped by concept, each as pass/fail with specifics —
 never just "invalid," always the field and file to fix.

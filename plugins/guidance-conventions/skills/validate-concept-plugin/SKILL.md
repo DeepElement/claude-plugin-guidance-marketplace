@@ -41,35 +41,53 @@ For each Concept plugin found (or the one specified by the user):
    that reads like documentation for one particular provider.
 
 2. **Tier 2 present and is a contract, not an implementation.**
-   `skills/realization-contract/SKILL.md` exists and defines:
-   - the input configuration schema a realization must accept from a
-     consuming workspace
-   - the identifying name convention a realization registers under
-   - a version identifier for the contract
-   Flag if this file contains actual working implementation logic rather
-   than a schema/contract definition — that content belongs in a tier 3
+   `skills/realization-contract/SKILL.md` exists and defines the
+   operations/interface a realization implements and the identifying
+   name convention a realization registers under. Flag if this file
+   contains actual working implementation logic rather than a
+   schema/contract definition — that content belongs in a tier 3
    realization.
 
-3. **At least one Tier 3 realization exists.** At least one
+3. **Tier 2 `schema.json` present and valid.**
+   `skills/realization-contract/schema.json` exists, parses as valid
+   JSON Schema, and includes a `contractVersion` field (blocking if
+   missing entirely; non-blocking if present but missing
+   `contractVersion`). Per the
+   [`schema.json` convention](../../../../docs/architecture.md#the-schemajson-convention-tier-2-and-tier-3),
+   this should stay minimal — flag (non-blocking) any field that looks
+   provider-specific rather than something every realization would need.
+
+4. **At least one Tier 3 realization exists.** At least one
    `skills/realize-<provider>/SKILL.md` exists. If zero exist, this is a
    hard failure — a Concept plugin with tier 1 and tier 2 but no
    realization is not usable by a consuming workspace.
 
-4. **Exactly one default realization.** Among all `skills/realize-*/`
+5. **Exactly one default realization.** Among all `skills/realize-*/`
    directories, exactly one is marked as the default (per whatever marker
    the contract specifies, e.g. `default: true` in frontmatter or an
    explicit statement in the realization's SKILL.md). Flag if zero are
    marked default (workspace has no out-of-the-box option) or if more than
    one claims to be default (ambiguous).
 
-5. **Every realization publishes its input schema.** Each
-   `skills/realize-<provider>/SKILL.md` documents its own required
-   `config` fields for `marketplace-plugin-settings.yml`, and that schema
-   is a superset compatible with tier 2's base schema (same required
-   fields at minimum, may add more). Flag any realization that doesn't
-   document its config requirements at all.
+6. **Every realization publishes a valid, superset `schema.json`.** Each
+   `skills/realize-<provider>/schema.json` exists, parses as valid JSON
+   Schema, and is a superset of tier 2's `schema.json` — every field
+   `required` in tier 2 is still `required` here (never dropped or
+   loosened), and field types/meanings aren't changed. Missing entirely
+   is blocking; present but not a valid superset (e.g. narrows or drops
+   a required field) is also blocking, since it silently breaks the
+   contract tier 2 promises. Also check, non-blocking:
+   - every property has a `description`
+   - optional fields have a `default` where a sensible one exists
+   - the realization's own default status (§4 of the architecture doc)
+     is stated in its SKILL.md, not only in the concept skill
 
-6. **Every realization invokes the activation check first.** Each
+7. **Realization naming matches provider, not concept.** Flag
+   (non-blocking) any `skills/realize-<provider>/` whose name is generic
+   or repeats the concept name (e.g. `realize-default`) rather than
+   naming the actual provider/technology it implements.
+
+8. **Every realization invokes the activation check first.** Each
    realization's SKILL.md instructs Claude to run the activation check
    (from `guidance-activation-check`, if installed) before doing any real
    work, so missing/stale workspace configuration is caught with a clear
@@ -79,7 +97,7 @@ For each Concept plugin found (or the one specified by the user):
    marketplace-level gap rather than failing every realization
    individually.
 
-7. **Naming consistency.** The realization identifying names used in each
+9. **Naming consistency.** The realization identifying names used in each
    `skills/realize-*/SKILL.md` are unique within the plugin and match
    what tier 2 says the naming convention should be (e.g. matching the
    directory name minus the `realize-` prefix).
@@ -87,13 +105,18 @@ For each Concept plugin found (or the one specified by the user):
 ## Reporting
 
 Group findings as:
-- **Blocking** — missing tier 1, missing tier 2, zero realizations, zero
-  or multiple default realizations. These mean the plugin cannot be used
-  as documented and should be fixed before merging/publishing.
-- **Non-blocking** — missing schema documentation, missing activation
-  check invocation, naming drift. These degrade the guarantees the
-  architecture doc promises (clear config errors, swappability) but don't
-  make the plugin unusable.
+- **Blocking** — missing tier 1, missing tier 2, missing or invalid tier
+  2 `schema.json`, zero realizations, a realization missing `schema.json`
+  or whose `schema.json` isn't a valid superset of tier 2's, zero or
+  multiple default realizations. These mean the plugin cannot be used as
+  documented, or silently breaks the contract, and should be fixed before
+  merging/publishing.
+- **Non-blocking** — missing `contractVersion`, missing field
+  descriptions/defaults, undocumented default status, generic realization
+  naming, missing activation check invocation, naming drift. These
+  degrade the guarantees the architecture doc promises (clear config
+  errors, swappability, self-explanatory config) but don't make the
+  plugin unusable.
 
 For each finding, give the file and a one-line fix suggestion. Do not
 silently modify files — report and let the user decide, unless they've
