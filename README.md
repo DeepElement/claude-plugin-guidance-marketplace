@@ -1,10 +1,8 @@
 # claude-plugin-guidance
 
-An authoring layer for people building their own Claude Code plugin
-marketplaces. Install these plugins into your marketplace repo and
-they'll guide you toward good structure as you write it, and give you a
-clear, specific notice when something's off — instead of leaving you to
-remember the rules yourself.
+Claude's default plugin guidance tells you the mechanics, not how to
+design a plugin that extends well and realizes cleanly into real-world
+variation.
 
 ## Why this exists
 
@@ -18,11 +16,15 @@ drifts into inconsistency one plugin at a time, and a mistake surfaces
 only as a confusing failure downstream, far from the change that caused
 it.
 
-This marketplace is that missing layer. It is **not** a general-purpose
-plugin collection, and it's not meant to be installed into an ordinary
-application workspace — it's for the person building the marketplace
-repo itself (a `.claude-plugin/marketplace.json` plus a `plugins/`
-directory), authored so its checks run *as you write*, not after.
+This marketplace is that missing layer. Install these plugins into your
+marketplace repo and they'll guide you toward good structure as you
+write it, and give you a clear, specific notice when something's off —
+instead of leaving you to remember the rules yourself. It is **not** a
+general-purpose plugin collection, and it's not meant to be installed
+into an ordinary application workspace — it's for the person building
+the marketplace repo itself (a `.claude-plugin/marketplace.json` plus a
+`plugins/` directory), authored so its checks run *as you write*, not
+after.
 
 ## The two plugins, together
 
