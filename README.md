@@ -1,15 +1,52 @@
 # claude-plugin-guidance
 
-An authoring layer for people building their own Claude Code plugin
-marketplaces. Install these plugins into your marketplace repo and they'll
-guide you toward good structure as you write it, and give you a clear,
-specific notice when something's off — instead of leaving you to remember
-the rules yourself.
+Claude's default plugin guidance tells you the mechanics, not how to
+design a plugin that extends well — this marketplace offers the
+concept/realization pattern so a plugin realizes cleanly into real-world
+variation.
 
-This is **not** a general-purpose plugin collection — it's not meant to be
-installed into an ordinary application workspace. It's for the person
-building the marketplace repo itself (a `.claude-plugin/marketplace.json`
-plus a `plugins/` directory).
+## Why this exists
+
+Anthropic's plugin/marketplace standard defines the mechanics — manifest
+schema, directory layout, component types — but says nothing about how
+to structure a marketplace repo well as you build it: what naming to
+use, what docs are expected, how to shape a plugin whose capability has
+more than one possible implementation. Without that layer, every
+marketplace author either reinvents these conventions from scratch or
+drifts into inconsistency one plugin at a time, and a mistake surfaces
+only as a confusing failure downstream, far from the change that caused
+it.
+
+This marketplace is that missing layer. Install these plugins into your
+marketplace repo and they'll guide you toward good structure as you
+write it, and give you a clear, specific notice when something's off —
+instead of leaving you to remember the rules yourself. It is **not** a
+general-purpose plugin collection, and it's not meant to be installed
+into an ordinary application workspace — it's for the person building
+the marketplace repo itself (a `.claude-plugin/marketplace.json` plus a
+`plugins/` directory), authored so its checks run *as you write*, not
+after.
+
+## The two plugins, together
+
+Neither plugin here is more foundational than the other — install both.
+**guidance-conventions** enforces the structure your marketplace repo
+should have; **guidance-activation-check** is the runtime helper any
+plugin built with that structure can call on to fail predictably instead
+of confusingly.
+
+- **[guidance-conventions](./plugins/guidance-conventions)** — checks
+  your marketplace repo's naming, required docs, and structure as you
+  author it, including a deeper check for any plugin that adopts the
+  [concept/realization pattern](./docs/architecture.md) described below.
+  This is where the marketplace-authoring rules live.
+
+- **[guidance-activation-check](./plugins/guidance-activation-check)** —
+  a shared pre-flight check your plugins can call before doing real
+  work. It validates `marketplace-plugin-settings.yml` against the
+  active realization's published config schema, so a missing or outdated
+  configuration produces one clear, actionable message instead of a
+  confusing failure deep in unrelated logic.
 
 ## Install
 
@@ -20,16 +57,6 @@ Run these from inside your marketplace project:
 /plugin install guidance-conventions@claude-plugin-guidance
 /plugin install guidance-activation-check@claude-plugin-guidance
 ```
-
-## What you get
-
-- **guidance-conventions** — checks your marketplace repo's naming,
-  required docs, and structure as you author it, including a deeper check
-  for any plugin that adopts the [concept/realization pattern](./docs/architecture.md)
-  described below.
-- **guidance-activation-check** — a shared pre-flight check your plugins
-  can call before doing real work, so a missing or outdated configuration
-  produces one clear, actionable message instead of a confusing failure.
 
 ## The concept/realization pattern
 
