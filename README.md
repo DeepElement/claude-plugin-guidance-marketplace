@@ -13,11 +13,13 @@ plus a `plugins/` directory).
 
 ## Install
 
-```
-/plugin marketplace add <this-repo-url-or-path>
-```
+Run these from inside your marketplace project:
 
-Then install the plugins below into your marketplace project.
+```
+/plugin marketplace add DeepElement/claude-plugin-guidance-marketplace
+/plugin install guidance-conventions@claude-plugin-guidance
+/plugin install guidance-activation-check@claude-plugin-guidance
+```
 
 ## What you get
 
