@@ -54,6 +54,11 @@ owned by Anthropic and documented at:
 - [Create plugins](https://code.claude.com/docs/en/plugins)
 - [Create and distribute a plugin marketplace](https://code.claude.com/docs/en/plugin-marketplaces)
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the PR workflow and the
+conventions your plugin needs to follow.
+
 ## License
 
 Apache 2.0, with an added requirement: any public use of this project
