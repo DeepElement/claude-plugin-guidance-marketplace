@@ -1,5 +1,6 @@
 {
   "name": "claude-plugin-guidance",
+  "description": "Opinionated conventions and shared activation checks for authoring Claude Code plugin marketplaces.",
   "owner": {
     "name": "Todd Morrison",
     "email": "todd@endlessorbit.com"
