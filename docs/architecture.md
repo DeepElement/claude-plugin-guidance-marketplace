@@ -50,12 +50,15 @@ guidance-<concept>/
   from the workspace — that any provider implementation must satisfy to
   plug in. This is what makes providers swappable: they're not
   compatible by convention, they're compatible by contract.
-- **Providers are interchangeable and extensible.** This marketplace
-  ships at least one working provider for every concept, so a workspace
-  is never left with an abstraction and nothing to run. But a workspace
-  isn't limited to what we ship — they can write their own provider
-  skill, satisfy the same contract, and it works identically to a
-  marketplace-shipped one.
+- **Providers are interchangeable and extensible.** Where this
+  marketplace ships a working provider for a concept, a workspace is
+  never left with an abstraction and nothing to run — and a workspace
+  isn't limited to what we ship, either: they can write their own
+  provider skill, satisfy the same contract, and it works identically
+  to a marketplace-shipped one. A concept can also be published with no
+  provider yet at all (see §4) — a deliberate exception, not a gap, for
+  a capability worth naming before anyone has built something to back
+  it.
 
 ## Where the workspace fits in
 
@@ -97,9 +100,11 @@ For a workspace:
 - The ability to switch providers for any concept — or replace a
   marketplace-shipped provider with an internal one — without touching
   any skill that consumes the concept.
-- A guaranteed default: every concept is usable immediately after
-  install, with at most some configuration values left to fill in, and
-  a clear signal when they're missing.
+- A guaranteed default for every concept that ships a realization: it's
+  usable immediately after install, with at most some configuration
+  values left to fill in, and a clear signal when they're missing. A
+  concept published with no realization yet is usable as a stable name
+  to reference and build against, even before anything backs it.
 
 For this marketplace's maintainers:
 
@@ -168,7 +173,7 @@ Each concept plugin contains, as skills within that single plugin:
 
 - **Tier 3 — Realizations** (`skills/realize-<provider>/SKILL.md` plus a
   sibling `skills/realize-<provider>/schema.json`, one per concrete
-  provider, N+1 where N ≥ 0 — see §4)
+  provider, zero or more — see §4)
   Each is a concrete implementation satisfying the Tier 2 contract for
   one specific provider/technology. Each realization:
   - declares which concept + contract version it satisfies (in SKILL.md)
@@ -221,16 +226,46 @@ notifications:
   check (§6) can validate a workspace's `config` block without
   inspecting the realization's implementation.
 
-### 4. Every concept ships at least one default realization
+### 4. A concept may be published with no realization at all
 
-Each concept plugin in this marketplace must include at least one
-marketplace-shipped Tier 3 realization, pinned as the default (e.g. via
-a `default: true` marker in the contract or an explicit note in the
-concept skill). This guarantees a workspace can use any marketplace
-concept immediately after installing it, without first having to author
-or select a realization — they may still need to fill in required
-`config` values, which is the activation check's job to surface (§6),
-not a reason the concept fails to have a usable default.
+A concept plugin is not required to ship a realization to be a valid,
+finished plugin. **A concept-only plugin — Tier 1 alone, describing a
+capability with no contract and no implementation yet — is a legitimate
+end state**, not a half-finished one. This covers two distinct cases,
+both valid:
+
+- **Transitional.** The concept is worth naming and standardizing now,
+  and a first realization is expected later — from this marketplace or
+  from a consuming workspace.
+- **Permanent.** The concept exists to establish shared vocabulary and
+  (once added) a shared contract for an ecosystem of realizations no
+  single marketplace maintainer expects to write themselves — e.g.
+  published so other plugins, or workspaces, have a stable name to
+  reference and build against.
+
+A concept-only plugin needs only its Tier 1 `skills/concept/SKILL.md`.
+**Tier 2 (the realization contract) is not required until a first
+realization is being added** — writing a contract with nothing yet
+implementing it is premature; the contract exists to describe what a
+realization must satisfy, so it earns its place at the same time as
+that first realization.
+
+If a concept *does* ship one or more Tier 3 realizations, the existing
+rules still apply in full: Tier 2 must exist and be published, and
+exactly one realization must be marked as the default (e.g. via a
+`default: true` marker in the contract or an explicit note in the
+concept skill), so a workspace that installs a concept with any shipped
+realizations can use it immediately, without first having to author or
+select one — they may still need to fill in required `config` values,
+which is the activation check's job to surface (§6), not a reason the
+concept fails to have a usable default.
+
+A concept-only plugin has no default realization and no activation
+check to run — there is nothing yet for a workspace to configure or
+activate. Anything that references this concept by name (§5) must
+handle "no realization currently backs this concept" as an expected
+outcome, not an error, until either a marketplace realization ships or
+a workspace authors its own.
 
 ### 5. Cross-concept references stay abstract
 
@@ -413,6 +448,10 @@ one concept yet.
 - This pattern adds structure/ceremony that a single-purpose plugin
   doesn't need — it applies to concept plugins in this marketplace, not
   to every plugin anyone ever writes.
+- Publishing a concept ahead of any realization (§4) is a valid way to
+  stake out shared vocabulary for a capability before anyone — this
+  marketplace or a consuming workspace — has built something to back
+  it.
 - Naming discipline matters: concept names, realization names, and
   contract versions are the join keys across settings.yml, Tier 2, and
   Tier 3. Renaming any of these is a breaking change for consuming

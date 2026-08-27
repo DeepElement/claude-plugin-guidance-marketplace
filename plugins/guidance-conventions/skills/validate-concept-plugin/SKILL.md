@@ -38,11 +38,13 @@ what's being authored or what the user asks for:
 ## How to detect a Concept plugin
 
 A plugin is a Concept plugin if it has a
-`skills/concept/SKILL.md` file. Presence of that directory is the sole
-signal — no `plugin.json` field is required to opt in. If a plugin has
-`skills/realization-contract/` or `skills/realize-*/` but no
-`skills/concept/`, flag that on its own (see check 1) rather than assuming
-intent.
+`skills/concept/SKILL.md` file. Presence of that file is the sole
+signal — no `plugin.json` field is required to opt in, and neither is
+having any realization-contract or realization yet (see check 4: a
+Concept plugin may legitimately have `skills/concept/` and nothing
+else). If a plugin has `skills/realization-contract/` or
+`skills/realize-*/` but no `skills/concept/`, flag that on its own (see
+check 1) rather than assuming intent.
 
 If a plugin has none of `skills/concept/`, `skills/realization-contract/`,
 or `skills/realize-*/`, it's a plain plugin — skip all checks below and
@@ -64,7 +66,8 @@ For each Concept plugin found (or the one specified by the user):
    - failure modes are named in the abstract (e.g. "not found," "not
      authorized") rather than as one provider's actual error names/codes
 
-2. **Tier 2 present and is a contract, not an implementation.**
+2. **Tier 2 present and is a contract, not an implementation** (only
+   required once the plugin has ≥1 realization — see check 4).
    `skills/realization-contract/SKILL.md` exists and defines the
    operations/interface a realization implements and the identifying
    name convention a realization registers under. Flag if this file
@@ -85,17 +88,33 @@ For each Concept plugin found (or the one specified by the user):
    is what a workspace author writing their own realization copies as a
    starting point.
 
-4. **At least one Tier 3 realization exists.** At least one
-   `skills/realize-<provider>/SKILL.md` exists. If zero exist, this is a
-   hard failure — a Concept plugin with tier 1 and tier 2 but no
-   realization is not usable by a consuming workspace.
+4. **Realization count determines which checks below apply.** Count
+   `skills/realize-<provider>/SKILL.md` directories.
+   - **Zero realizations, and no `skills/realization-contract/` either:**
+     this is a concept-only plugin (architecture.md §4) — a legitimate,
+     permanent-or-transitional end state, not a failure. Report it as
+     such (see "Reporting" below) and skip checks 2, 5, 6, 7 and the
+     realization-contract half of check 3 entirely; only check 1 (Tier 1)
+     applies.
+   - **Zero realizations, but `skills/realization-contract/` exists:**
+     a contract with nothing yet implementing it. This is unusual —
+     per §4 a contract is only expected to exist once a first
+     realization is being added — so flag it (non-blocking) as worth
+     checking whether the contract was published prematurely, but still
+     run checks 2–3 against it. Skip checks 5–7 (nothing to check them
+     against).
+   - **One or more realizations exist:** run all checks 2–9 as normal;
+     `skills/realization-contract/` is now required (blocking if
+     missing, per check 2).
 
-5. **Exactly one default realization.** Among all `skills/realize-*/`
-   directories, exactly one is marked as the default (per whatever marker
-   the contract specifies, e.g. `default: true` in frontmatter or an
-   explicit statement in the realization's SKILL.md). Flag if zero are
-   marked default (workspace has no out-of-the-box option) or if more than
-   one claims to be default (ambiguous).
+5. **Exactly one default realization (only if ≥1 realization exists).**
+   Among all `skills/realize-*/` directories, exactly one is marked as
+   the default (per whatever marker the contract specifies, e.g.
+   `default: true` in frontmatter or an explicit statement in the
+   realization's SKILL.md). Flag if zero are marked default (workspace
+   has no out-of-the-box option) or if more than one claims to be
+   default (ambiguous). Not applicable to a concept-only plugin — there
+   is nothing to default to.
 
 6. **Every realization publishes a valid, superset `schema.json`.** Each
    `skills/realize-<provider>/schema.json` exists, parses as valid JSON
@@ -245,29 +264,39 @@ can judge intent.
 ## Reporting
 
 State which check set(s) ran (A, B, C, D, or a combination) before
-listing findings, so the user knows what was and wasn't covered. Group
-findings within each set as:
+listing findings, so the user knows what was and wasn't covered.
 
-- **Blocking** — missing tier 1, missing tier 2, missing or invalid tier
-  2 `schema.json`, zero realizations, a realization or workspace-authored
-  skill missing `schema.json` or whose `schema.json` isn't a valid
-  superset of tier 2's, zero or multiple default realizations (set A
-  only — not applicable to a workspace-authored realization), a
-  realization/workspace skill missing the activation-check invocation
-  entirely. These mean the plugin/skill cannot be used as documented, or
-  silently breaks the contract, and should be fixed before
-  merging/publishing/using it.
-- **Non-blocking** — missing `contractVersion`, missing example config
-  block, missing field descriptions/defaults, undocumented default
-  status, generic realization naming, activation check present but not
-  first, naming drift, un-enumerated operations or non-abstract failure
-  modes in Tier 1, any set-C cross-concept reference finding, and any
-  set-D split-signal finding (both always non-blocking — they're
-  evidence-based judgment calls for the user to weigh, never
-  certainties). These degrade the guarantees the architecture doc
-  promises (clear config errors, swappability, self-explanatory config,
-  loose coupling, one contract per concept) but don't make the plugin
-  unusable outright.
+If check 4 found zero realizations and no `skills/realization-contract/`,
+say so plainly and stop there for set A: *"This is a concept-only plugin
+(0 realizations) — a valid, permanent-or-transitional state per
+architecture.md §4. Only Tier 1 applies; checks 2, 5, 6, 7 and 3's
+contract half don't apply here."* This is not a finding to fix — do not
+list it under Blocking or Non-blocking.
+
+Otherwise, group findings within each set as:
+
+- **Blocking** — missing tier 1, missing tier 2 (when the plugin has
+  ≥1 realization), missing or invalid tier 2 `schema.json`, a
+  realization or workspace-authored skill missing `schema.json` or
+  whose `schema.json` isn't a valid superset of tier 2's, zero or
+  multiple default realizations among plugins that have ≥1 realization
+  (set A only — not applicable to a workspace-authored realization or
+  to a concept-only plugin), a realization/workspace skill missing the
+  activation-check invocation entirely. These mean the plugin/skill
+  cannot be used as documented, or silently breaks the contract, and
+  should be fixed before merging/publishing/using it.
+- **Non-blocking** — a `skills/realization-contract/` published with
+  zero realizations yet to satisfy it, missing `contractVersion`,
+  missing example config block, missing field descriptions/defaults,
+  undocumented default status, generic realization naming, activation
+  check present but not first, naming drift, un-enumerated operations
+  or non-abstract failure modes in Tier 1, any set-C cross-concept
+  reference finding, and any set-D split-signal finding (all always
+  non-blocking — they're evidence-based judgment calls for the user to
+  weigh, never certainties). These degrade the guarantees the
+  architecture doc promises (clear config errors, swappability,
+  self-explanatory config, loose coupling, one contract per concept)
+  but don't make the plugin unusable outright.
 
 For each finding, give the file and a one-line fix suggestion. Do not
 silently modify files — report and let the user decide, unless they've

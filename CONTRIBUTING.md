@@ -72,10 +72,11 @@ pattern described in full in
 [docs/architecture.md](./docs/architecture.md). In short:
 
 - One **Tier 1 concept** skill (`skills/concept/`) describing the
-  capability abstractly, with no provider-specific detail.
+  capability abstractly, with no provider-specific detail. This alone
+  is a complete, publishable plugin — see "Concept-only plugins" below.
 - One **Tier 2 realization contract** (`skills/realization-contract/`),
   with a `schema.json` sibling file, defining what any realization must
-  satisfy.
+  satisfy. Required once you're adding a first realization, not before.
 - One or more **Tier 3 realizations** (`skills/realize-<provider>/`),
   each with its own `schema.json` superset, at least one marked as the
   plugin's default.
@@ -90,6 +91,16 @@ instead (see architecture doc §8). Run `validate-concept-plugin` (from
 checks structure, contract/schema validity, naming, activation-check
 invocation, and flags (non-blocking) any sign the plugin should be
 split or has drifted from these conventions.
+
+#### Concept-only plugins
+
+You don't need a realization in hand to propose a concept. Publishing
+Tier 1 alone — no contract, no realization — is a valid, complete PR if
+the capability is worth naming now, whether or not anyone (including
+you) is ready to build a realization for it yet. `validate-concept-plugin`
+recognizes this as a concept-only plugin and doesn't ask for a Tier 2 or
+Tier 3 you haven't written. Add Tier 2 and a first Tier 3 realization in
+a later PR whenever one is ready — see architecture doc §4.
 
 ## Reporting bugs and requesting features
 
