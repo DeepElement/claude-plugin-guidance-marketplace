@@ -4,5 +4,11 @@
     "name": "Todd Morrison",
     "email": "todd@endlessorbit.com"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "guidance-conventions",
+      "source": "./plugins/guidance-conventions",
+      "description": "Opinionated conventions for authoring Claude Code plugin marketplaces, layered on top of the official plugin/marketplace standard."
+    }
+  ]
 }
