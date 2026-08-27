@@ -24,6 +24,17 @@ only adds opinions on top.
 /plugin marketplace add <this-repo-url-or-path>
 ```
 
+## Architecture
+
+Plugins in this marketplace that represent a swappable capability (a
+"concept" with multiple possible provider implementations) follow a
+concept/realization pattern: an abstract concept, a realization contract,
+one or more concrete provider realizations, and a consuming-workspace
+settings file that selects and configures a provider per concept.
+
+- [How this marketplace works](./docs/architecture.md) — the strategy,
+  in plain terms: what problem it solves and what adopting it produces.
+
 ## Plugins
 
 - **guidance-conventions** (`plugins/guidance-conventions`) — provides a
