@@ -1,6 +1,6 @@
 ---
 name: validate-concept-plugin
-description: Validate that a plugin claiming to be a "Concept" plugin correctly follows the concept/realization architecture (tier 1 concept, tier 2 realization contract, tier 3 realizations, default realization, activation-check invocation), validate a workspace-authored realization skill against a concept's published contract, and check that concepts reference each other only by name. Use proactively whenever the user is authoring or editing a plugin under plugins/*/skills/concept/, plugins/*/skills/realization-contract/, or plugins/*/skills/realize-*/, whenever a consuming workspace is authoring its own realization skill for a marketplace concept, or whenever the user explicitly asks to check/validate/audit a concept plugin, a workspace realization, or cross-concept references.
+description: Validate that a plugin claiming to be a "Concept" plugin correctly follows the concept/realization architecture (tier 1 concept, tier 2 realization contract, tier 3 realizations, default realization, activation-check invocation), validate a workspace-authored realization skill against a concept's published contract, check that concepts reference each other only by name, and detect when a concept plugin has drifted into needing more than one realization contract and should be split into sibling concepts. Use proactively whenever the user is authoring or editing a plugin under plugins/*/skills/concept/, plugins/*/skills/realization-contract/, or plugins/*/skills/realize-*/, whenever a consuming workspace is authoring its own realization skill for a marketplace concept, or whenever the user explicitly asks to check/validate/audit a concept plugin, a workspace realization, cross-concept references, or whether a plugin should be split.
 ---
 
 # Validate Concept Plugin
@@ -30,6 +30,10 @@ what's being authored or what the user asks for:
 - **C. Cross-concept reference discipline** — see "Cross-concept
   reference check" below, scanning any concept's Tier 1 skill for leaked
   coupling to a specific realization.
+- **D. Split-signal check** — check 10 below, detecting when a concept
+  plugin has outgrown the one-contract-per-concept rule and should be
+  split into sibling concepts instead of accommodating a second contract
+  shape in place.
 
 ## How to detect a Concept plugin
 
@@ -128,6 +132,39 @@ For each Concept plugin found (or the one specified by the user):
    what tier 2 says the naming convention should be (e.g. matching the
    directory name minus the `realize-` prefix).
 
+10. **Split-signal check (§8 of the architecture doc): does this plugin
+    actually hold two concepts?** This is a judgment call, not a hard
+    rule — always report findings here as "consider splitting," never as
+    a failure, and always show the evidence so the user can decide.
+    Look for these structural proxies of drift:
+    - **Branching language in Tier 1.** `skills/concept/SKILL.md`
+      contains conditional phrasing keyed on realization type or
+      provider category (e.g. "if using a chat-style realization... if
+      using an email-style realization...", "for X-type providers... for
+      Y-type providers..."). This is the clearest tell — Tier 1 should
+      describe one uniform set of operations, not branch on how a
+      realization implements them.
+    - **Low schema overlap across realizations.** Compare the
+      `properties` keys across all `skills/realize-*/schema.json` files
+      for this concept. If they share little beyond what tier 2's base
+      schema already requires — i.e. most of what makes each realization
+      "work" is realization-specific, not concept-shared — that's
+      evidence the concept's single contract is straining to cover two
+      different shapes of capability.
+    - **Tier 2 itself branches.** `skills/realization-contract/SKILL.md`
+      or its `schema.json` describes alternate/optional groups of
+      required fields depending on realization "type" (e.g. a
+      discriminated union, an `if/then` in the JSON Schema, or prose like
+      "chat realizations must also provide... email realizations must
+      also provide..."). A single contract needing internal branching to
+      describe its own realizations is the same drift as Tier 1
+      branching, one layer down.
+    When any of these appear, report it as: what was found (with the
+    quoted text or field list), why it suggests two concepts, and the
+    suggested split — a name for each resulting sibling concept and a
+    note that the original plugin's Tier 1 should reference the new
+    sibling(s) by name (per §5) rather than absorbing their contract.
+
 ## Validating a workspace-authored realization (B)
 
 Per §2 of the architecture doc, a consuming workspace can author its own
@@ -207,9 +244,9 @@ can judge intent.
 
 ## Reporting
 
-State which check set(s) ran (A, B, C, or a combination) before listing
-findings, so the user knows what was and wasn't covered. Group findings
-within each set as:
+State which check set(s) ran (A, B, C, D, or a combination) before
+listing findings, so the user knows what was and wasn't covered. Group
+findings within each set as:
 
 - **Blocking** — missing tier 1, missing tier 2, missing or invalid tier
   2 `schema.json`, zero realizations, a realization or workspace-authored
@@ -224,11 +261,13 @@ within each set as:
   block, missing field descriptions/defaults, undocumented default
   status, generic realization naming, activation check present but not
   first, naming drift, un-enumerated operations or non-abstract failure
-  modes in Tier 1, and any set-C cross-concept reference finding (always
-  non-blocking — text-matched, needs human judgment). These degrade the
-  guarantees the architecture doc promises (clear config errors,
-  swappability, self-explanatory config, loose coupling) but don't make
-  the plugin unusable outright.
+  modes in Tier 1, any set-C cross-concept reference finding, and any
+  set-D split-signal finding (both always non-blocking — they're
+  evidence-based judgment calls for the user to weigh, never
+  certainties). These degrade the guarantees the architecture doc
+  promises (clear config errors, swappability, self-explanatory config,
+  loose coupling, one contract per concept) but don't make the plugin
+  unusable outright.
 
 For each finding, give the file and a one-line fix suggestion. Do not
 silently modify files — report and let the user decide, unless they've

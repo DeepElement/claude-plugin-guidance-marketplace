@@ -368,6 +368,39 @@ Tooling (the activation check, `validate-concept-plugin`) reads this file
 directly rather than parsing prose, which is why it exists as a sibling
 file instead of embedded narrative in SKILL.md.
 
+### 8. One concept, one realization contract — the split rule
+
+**Every concept plugin has exactly one Tier 2 realization contract.** If
+a concept's realizations don't all naturally satisfy one shared
+`schema.json`, that isn't a reason to add a second contract to the same
+plugin — it's a sign the plugin is actually two concepts.
+
+The tell shows up in Tier 1 before it shows up in Tier 2: a Tier 1
+concept skill is supposed to describe one capability in provider-agnostic
+terms with a single, uniform set of operations. If, while writing or
+extending it, you find yourself branching — "if the realization is
+chat-style, do X; if it's email-style, do Y" — or describing two
+noticeably different shapes of configuration a realization might need,
+Tier 1 has drifted into realization space. That drift is what eventually
+forces a second, incompatible `schema.json` onto the plugin, which breaks
+the guarantee every other check in this document relies on (one contract
+per concept plugin, checked by `validate-concept-plugin`).
+
+**The fix is to split, not to accommodate.** Pull the diverging part out
+into its own sibling concept plugin — its own Tier 1 concept, Tier 2
+contract, and Tier 3 realizations — and have the original concept
+reference the new one **by name**, exactly as §5 already describes for
+any cross-concept dependency. For example, a single `notifications`
+concept whose Tier 1 starts describing both "post a chat message" and
+"send an email" is two concepts: `notifications-chat` and
+`notifications-email`, each with its own contract. A caller that
+genuinely needs both keeps referencing each by name; it does not gain
+that by one plugin holding two contracts.
+
+This keeps the DRY property of the whole pattern intact: a concept
+either has one clean contract every realization satisfies, or it isn't
+one concept yet.
+
 ### Consequences
 
 - Adding a new provider for an existing concept means adding one Tier 3
@@ -385,6 +418,10 @@ file instead of embedded narrative in SKILL.md.
   Tier 3. Renaming any of these is a breaking change for consuming
   workspaces (consistent with the plugin-name stability rule in the
   official plugin standard).
+- The one-contract-per-concept rule (§8) means growth in this marketplace
+  looks like more sibling plugins, not fewer, bigger ones. That's a
+  deliberate trade: more plugins to browse, in exchange for every
+  installed one staying small enough to reason about and swap freely.
 
 ### Open questions (not yet decided)
 
