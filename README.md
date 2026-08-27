@@ -1,6 +1,6 @@
 # claude-plugin-guidance-marketplace
 
-A Claude Code plugin marketplace. All plugins in this marketplace use the `guidance-` name prefix.
+A Claude Code plugin marketplace (name: `claude-plugin-guidance`). All plugins in this marketplace use the `guidance-` name prefix.
 
 ## Add to Claude Code
 
