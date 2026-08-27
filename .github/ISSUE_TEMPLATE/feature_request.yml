@@ -1,0 +1,48 @@
+name: Feature request
+description: Suggest a new plugin, skill, or convention for this marketplace.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before requesting a new plugin, take a look at
+        [docs/architecture.md](../../docs/architecture.md) — if what you're
+        proposing represents a capability with more than one implementation
+        (e.g. wraps a provider or service), it likely belongs in a
+        concept/realization plugin rather than a plain one.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What are you proposing?
+      description: A new plugin, a new skill in an existing plugin, a change to a convention, etc.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: What kind of change is this?
+      options:
+        - New plugin (plain, single-tier)
+        - New concept plugin (has multiple/swappable implementations)
+        - New realization for an existing concept
+        - Change to an existing convention or the architecture doc
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Is there a way to do this with what's already here?
+    validations:
+      required: false
