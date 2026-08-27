@@ -1,7 +1,8 @@
 # claude-plugin-guidance
 
 Claude's default plugin guidance tells you the mechanics, not how to
-design a plugin that extends well and realizes cleanly into real-world
+design a plugin that extends well — this marketplace offers the
+concept/realization pattern so a plugin realizes cleanly into real-world
 variation.
 
 ## Why this exists
