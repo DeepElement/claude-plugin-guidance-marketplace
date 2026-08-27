@@ -93,3 +93,8 @@ Apache 2.0, with an added requirement: any public use of this project
 "DeepElement" and link back to its source repository,
 [DeepElement/claude-plugin-guidance-marketplace](https://github.com/DeepElement/claude-plugin-guidance-marketplace).
 See [LICENSE](./LICENSE) for the exact terms.
+
+## Acknowledgments
+
+This project's use of Claude and other pay-for-use models was supported
+by a donation from [joelunger.com](https://joelunger.com).
