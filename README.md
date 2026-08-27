@@ -56,6 +56,8 @@ owned by Anthropic and documented at:
 
 ## License
 
-Apache 2.0, with an added requirement: any public use of this project or
-a derivative must visibly credit DeepElement / claude-plugin-guidance with
-a link back to this repo. See [LICENSE](./LICENSE) for the exact terms.
+Apache 2.0, with an added requirement: any public use of this project
+("claude-plugin-guidance") or a derivative must visibly credit
+"DeepElement" and link back to its source repository,
+[DeepElement/claude-plugin-guidance-marketplace](https://github.com/DeepElement/claude-plugin-guidance-marketplace).
+See [LICENSE](./LICENSE) for the exact terms.
