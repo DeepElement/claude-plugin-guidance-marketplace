@@ -1,0 +1,9 @@
+{
+  "name": "guidance-activation-check",
+  "version": "0.1.0",
+  "description": "Shared pre-flight check that concept-plugin realizations invoke before doing real work, validating marketplace-plugin-settings.yml against the active realization's published config schema.",
+  "author": {
+    "name": "DeepElement",
+    "email": "todd@endlessorbit.com"
+  }
+}

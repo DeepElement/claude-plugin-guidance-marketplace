@@ -1,0 +1,19 @@
+{
+  "name": "claude-plugin-guidance",
+  "owner": {
+    "name": "Todd Morrison",
+    "email": "todd@endlessorbit.com"
+  },
+  "plugins": [
+    {
+      "name": "guidance-conventions",
+      "source": "./plugins/guidance-conventions",
+      "description": "Opinionated conventions for authoring Claude Code plugin marketplaces, layered on top of the official plugin/marketplace standard."
+    },
+    {
+      "name": "guidance-activation-check",
+      "source": "./plugins/guidance-activation-check",
+      "description": "Shared pre-flight check that concept-plugin realizations invoke before doing real work, validating marketplace-plugin-settings.yml against the active realization's published config schema."
+    }
+  ]
+}

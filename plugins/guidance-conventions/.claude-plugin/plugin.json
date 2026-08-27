@@ -1,0 +1,9 @@
+{
+  "name": "guidance-conventions",
+  "version": "0.1.0",
+  "description": "Opinionated conventions for authoring Claude Code plugin marketplaces, layered on top of the official plugin/marketplace standard.",
+  "author": {
+    "name": "DeepElement",
+    "email": "todd@endlessorbit.com"
+  }
+}
