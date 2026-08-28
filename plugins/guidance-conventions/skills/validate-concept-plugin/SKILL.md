@@ -128,6 +128,14 @@ For each Concept plugin found (or the one specified by the user):
    - optional fields have a `default` where a sensible one exists
    - the realization's own default status (§4 of the architecture doc)
      is stated in its SKILL.md, not only in the concept skill
+   - if the realization implements a direct service integration (e.g.
+     calling a provider's REST API itself) rather than binding to an
+     existing MCP server or CLI for that provider, its SKILL.md doesn't
+     explain why (no adequate MCP/CLI exists, or a deliberate operator
+     choice) — per the Tier 3 best practice in architecture.md §7,
+     binding to a preexisting MCP/CLI is the recommended first move, so
+     an unexplained direct integration is worth flagging for the user
+     to confirm was intentional
 
 7. **Realization naming matches provider, not concept.** Flag
    (non-blocking) any `skills/realize-<provider>/` whose name is generic
@@ -288,8 +296,10 @@ Otherwise, group findings within each set as:
 - **Non-blocking** — a `skills/realization-contract/` published with
   zero realizations yet to satisfy it, missing `contractVersion`,
   missing example config block, missing field descriptions/defaults,
-  undocumented default status, generic realization naming, activation
-  check present but not first, naming drift, un-enumerated operations
+  undocumented default status, an unexplained direct service
+  integration where a preexisting MCP/CLI binding was preferred and no
+  rationale is given, generic realization naming, activation check
+  present but not first, naming drift, un-enumerated operations
   or non-abstract failure modes in Tier 1, any set-C cross-concept
   reference finding, and any set-D split-signal finding (all always
   non-blocking — they're evidence-based judgment calls for the user to

@@ -348,6 +348,20 @@ These are recommendations, checked (where mechanical) by
 
 #### Tier 3 — Realizations
 
+- Before writing a direct service integration, check whether an
+  existing public MCP server or CLI for that provider already covers
+  the operations Tier 1 requires, and prefer binding the realization to
+  that MCP/CLI over reimplementing the provider's API calls. A
+  realization's job is to translate the concept's contract into calls
+  against *something* that already speaks to the provider — it doesn't
+  need to be the thing that speaks to the provider first. Only fall
+  back to a direct integration (e.g. calling GitHub's REST API
+  directly instead of binding to an existing GitHub MCP/CLI) when no
+  adequate MCP or CLI exists, or when the marketplace creator/operator
+  deliberately chooses a direct integration for their own reasons
+  (tighter control, no extra runtime dependency, etc.) — that choice is
+  theirs to make, but binding to a preexisting MCP/CLI is the
+  recommended first move, not an equal alternative.
 - Name the realization after the provider/technology, not after the
   concept (`realize-aws-secrets-manager`, not `realize-provider-a`) —
   the identifying name in `marketplace-plugin-settings.yml` should be

@@ -79,7 +79,9 @@ pattern described in full in
   satisfy. Required once you're adding a first realization, not before.
 - One or more **Tier 3 realizations** (`skills/realize-<provider>/`),
   each with its own `schema.json` superset, at least one marked as the
-  plugin's default.
+  plugin's default. Prefer binding a realization to an existing public
+  MCP server or CLI for that provider over implementing a direct
+  service integration from scratch — see architecture doc §7.
 - Each realization invokes the activation check
   (`guidance-activation-check`) as its first instruction.
 
