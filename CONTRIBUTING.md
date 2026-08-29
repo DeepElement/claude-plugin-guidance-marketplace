@@ -88,11 +88,24 @@ pattern described in full in
 **One concept plugin, one contract.** If you find yourself needing a
 second, incompatible `schema.json` for the same plugin, that's a sign
 the plugin is actually two concepts — split it into sibling plugins
-instead (see architecture doc §8). Run `validate-concept-plugin` (from
-`guidance-conventions`) against your plugin before opening a PR; it
-checks structure, contract/schema validity, naming, activation-check
-invocation, and flags (non-blocking) any sign the plugin should be
-split or has drifted from these conventions.
+instead (see architecture doc §8). The same drift is often visible
+straight from Tier 1's prose, before any second contract exists: if your
+concept's operations don't share one coherent verb+object, or its
+"when to use this" reads as more than one scenario, split before writing
+Tier 2 — see architecture doc §7.
+
+**Referencing another concept.** If your plugin needs another concept's
+capability, reference it by that concept's bare name in backticks (e.g.
+`` `secrets` ``) — never by a specific realization's name, and never
+assume one is active (see architecture doc §5). This is the only form a
+cross-concept reference takes; treat it like a defined term pointing at
+that concept's own Tier 1 skill.
+
+Run `validate-concept-plugin` (from `guidance-conventions`) against your
+plugin before opening a PR; it checks structure, contract/schema
+validity, naming, activation-check invocation, cross-concept reference
+style, and flags (non-blocking) any sign the plugin should be split or
+has drifted from these conventions.
 
 #### Concept-only plugins
 

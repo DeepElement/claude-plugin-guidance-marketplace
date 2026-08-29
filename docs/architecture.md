@@ -277,6 +277,38 @@ realization backs `secrets` in this workspace" happens the same way for
 every caller: consult `marketplace-plugin-settings.yml`, then run the
 activation check (§6) before use.
 
+**Required reference style.** Write a cross-concept reference as the
+concept name in backticks, exactly as it appears in that concept's
+`plugin.json`/directory naming (e.g. `` `secrets` ``) — the same way this
+document backtick-quotes concept and realization names throughout. This
+is deliberately the *only* form a cross-concept reference takes in
+instruction text: a bare concept name in backticks, never a realization
+name, and never the concept name dressed up as a realization-sounding
+phrase. Treat it like a defined term referencing an appendix entry: the
+backticked name is the whole reference, resolved elsewhere (by the
+activation check, §6), not a description of how it's currently resolved.
+
+For example, a `deploy` concept's Tier 1 or a realization's SKILL.md
+should say:
+
+> ✅ To store the value, use the `secrets` concept.
+
+never
+
+> ❌ To store the value, use `aws-secrets-manager` (or "since this
+> project uses AWS, save it in Secrets Manager").
+
+The second form leaks a specific realization into a concept that should
+have no idea which one is active — it fails even if
+`aws-secrets-manager` genuinely is the workspace's configured
+realization today, because that binding is exactly what
+`marketplace-plugin-settings.yml` and the activation check exist to
+resolve, and it can change without this instruction text being updated
+to match. `validate-concept-plugin`'s cross-concept reference check
+(check C) scans for this pattern and runs proactively any time a Tier 1
+or Tier 3 file is authored or edited, not only on an explicit audit
+request — see that skill for the mechanical check.
+
 ### 6. Activation check: a shared convention, not a hook
 
 A dedicated plugin, `guidance-activation-check`, provides a shared skill
@@ -322,6 +354,23 @@ These are recommendations, checked (where mechanical) by
 - Never mention a specific provider, SDK, or vendor API in the body
   text. A reader should not be able to guess which realization is the
   default from reading Tier 1 alone.
+- **Keep the operations list to one coherent capability, not several.**
+  This is a different axis from the bullets above — a Tier 1 skill can
+  avoid every provider name and still be too broad, by bundling
+  operations for things a reader would naturally call by different
+  names (e.g. "post a chat message" and "send an email," the same
+  `notifications` example §8 resolves into two sibling concepts, are two
+  nouns, not two variations on one capability).
+  Ask whether every operation in the list is a variation on the *same*
+  verb+object, and whether the concept's "when to use this" reads as one
+  scenario or several unrelated ones. Either sign means Tier 1 has
+  already drifted into needing more than one contract — see §8 — and the
+  fix is to split it into sibling concepts before writing Tier 2, not
+  after a second, incompatible realization forces the issue. This check
+  works from Tier 1's own prose alone: it doesn't require any
+  realization or contract to exist yet, unlike the split-signal check in
+  §8, which mainly detects drift once realizations are already there to
+  compare.
 
 #### Tier 2 — Realization contract
 
@@ -424,16 +473,19 @@ a concept's realizations don't all naturally satisfy one shared
 `schema.json`, that isn't a reason to add a second contract to the same
 plugin — it's a sign the plugin is actually two concepts.
 
-The tell shows up in Tier 1 before it shows up in Tier 2: a Tier 1
-concept skill is supposed to describe one capability in provider-agnostic
-terms with a single, uniform set of operations. If, while writing or
-extending it, you find yourself branching — "if the realization is
-chat-style, do X; if it's email-style, do Y" — or describing two
-noticeably different shapes of configuration a realization might need,
-Tier 1 has drifted into realization space. That drift is what eventually
-forces a second, incompatible `schema.json` onto the plugin, which breaks
-the guarantee every other check in this document relies on (one contract
-per concept plugin, checked by `validate-concept-plugin`).
+The tell shows up in Tier 1 before it shows up in Tier 2 — often before
+any Tier 2 or Tier 3 exists at all, which is why §7's Tier 1 best
+practices already ask you to check operation-list coherence while
+Tier 1 is the only thing you've written. A Tier 1 concept skill is
+supposed to describe one capability in provider-agnostic terms with a
+single, uniform set of operations. If, while writing or extending it,
+you find yourself branching — "if the realization is chat-style, do X;
+if it's email-style, do Y" — or describing two noticeably different
+shapes of configuration a realization might need, Tier 1 has drifted
+into realization space. That drift is what eventually forces a second,
+incompatible `schema.json` onto the plugin, which breaks the guarantee
+every other check in this document relies on (one contract per concept
+plugin, checked by `validate-concept-plugin`).
 
 **The fix is to split, not to accommodate.** Pull the diverging part out
 into its own sibling concept plugin — its own Tier 1 concept, Tier 2
